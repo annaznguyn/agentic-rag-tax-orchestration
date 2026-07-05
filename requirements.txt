@@ -1,0 +1,7 @@
+requests
+beautifulsoup4
+python-dotenv
+langchain-text-splitters
+langchain-postgres
+langchain-google-genai
+psycopg[binary]

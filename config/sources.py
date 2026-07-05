@@ -4,3 +4,8 @@ SOURCES = [
         "income_year": "2025-26"
     }
 ]
+
+import psycopg
+conn = psycopg.connect("postgresql://postgres:postgres@localhost:5432/tax_orchestrator")
+print(conn.execute("SELECT version()").fetchone())
+conn.close()
