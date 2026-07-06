@@ -3,9 +3,10 @@ import re
 
 from bs4 import BeautifulSoup
 
+from config.sources import SOURCES
+from src.ingestion.fetch import fetch
 
-
-def clean(html: str) -> tuple(str, str):
+def clean(html: str) -> tuple[str, str]:
     """
     Clean the HTML content of a page.
 
@@ -24,8 +25,13 @@ def clean(html: str) -> tuple(str, str):
     title = route["fields"]["pageTitle"]["value"]
     body_html = _find_page_content(route)
     soup = BeautifulSoup(body_html, "html.parser")
-    text = soup.get_text(separator="\n")
-    text = re.sub(r"\n{3,}", "\n\n", text).strip()
+    # Extract text per block element (space-separated within each block) so
+    # inline tags like <a> don't split sentences across lines.
+    blocks = [
+        el.get_text(" ", strip=True)
+        for el in soup.find_all(["h2", "h3", "p", "li"])
+    ]
+    text = "\n\n".join(b for b in blocks if b)
     return text, title
 
 def _find_page_content(node: dict|list) -> str|None:
@@ -43,19 +49,18 @@ def _find_page_content(node: dict|list) -> str|None:
             return node["fields"]["contentBody"]["value"]
         
         for val in node.values():
-            if _find_page_content(val):
-                return _find_page_content(val)
+            found = _find_page_content(val)
+            if found:
+                return found
     elif isinstance(node, list):
         for item in node:
-            if _find_page_content(item):
-                return _find_page_content(item)
+            found = _find_page_content(item)
+            if found:
+                return found
     
     return None
 
 if __name__ == "__main__":
-    from config.sources import SOURCES
-    from src.ingestion.fetch import fetch
-
     text, title = clean(fetch(SOURCES[0]["url"]))
     print(f"=== {title} ===")
     print(text[:2000])
