@@ -12,10 +12,7 @@ def fetch(url: str) -> str:
     res.raise_for_status()
     return res.text
 
-def main():
+if __name__ == "__main__":
     for s in SOURCES:
         html = fetch(s["url"])
         print(f'{html}\n\n')
-
-if __name__ == "__main__":
-    main()
