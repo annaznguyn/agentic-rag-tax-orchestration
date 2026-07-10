@@ -1,6 +1,8 @@
 import requests
 
 def fetch(url: str) -> str:
+    cache_file = ""
+
     res = requests.get(
         url, 
         headers={

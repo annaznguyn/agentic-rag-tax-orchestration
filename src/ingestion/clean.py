@@ -3,7 +3,7 @@ import re
 
 from bs4 import BeautifulSoup
 
-def clean(html: str) -> tuple(str, str):
+def clean(html: str) -> tuple[str, str]:
     """
     Clean the HTML content of a page.
 
