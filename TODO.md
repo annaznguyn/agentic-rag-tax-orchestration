@@ -1,12 +1,18 @@
 # Later / optimisations
 
-## Heading-aware splitting in `chunk.py`
+1. [Heading-aware splitting in `chunk.py`](#1-heading-aware-splitting-in-chunkpy)
+2. [Redis caching in `fetch.py`](#2-redis-caching-in-fetchpy)
+3. [Expose the agent as an API](#3-expose-the-agent-as-an-api)
 
-Why: `chunk()` splits on character count alone, so chunks cut across
+---
+
+## 1. Heading-aware splitting in `chunk.py`
+
+**Why:** `chunk()` splits on character count alone, so chunks cut across
 sections and headings get separated from their body. ATO pages are short
 sections under `h2`/`h3`, so splitting per section retrieves better.
 
-Steps:
+**Steps:**
 
 1. `clean.py`: keep heading structure — prefix `h2` text with `## ` and
    `h3` text with `### `.
@@ -17,33 +23,34 @@ Steps:
 4. Shrink or drop `chunk_overlap` — it mainly compensated for mid-topic
    cuts.
 
-Verify:
+**Verify:**
 
 1. Run `python -m src.ingestion.chunk`.
 2. Every chunk starts with its section heading; no dangling headings.
 3. Test a query like "record keeping fixed rate" — the matching chunk
    should be the whole relevant section.
 
-## Local download cache for `fetch.py`
+## 2. Redis caching in `fetch.py`
 
-Why: `fetch()` hits the network on every run. Cache pages locally so
-re-running ingestion is instant.
+**Why:** practice with Redis; gives TTL-based expiry (file cache never
+expires) and a shared cache if the app ever runs as multiple processes.
 
-Steps:
+**Steps:**
 
-1. Cache path: `data/raw/<sha256(url)>.html`. Create `data/raw/` with
-   `mkdir(parents=True, exist_ok=True)`.
-2. Cache hit: read the file and return it. No network call, no sleep.
-3. Cache miss: download, `raise_for_status()` (never cache an error
-   page), write `resp.text`, `time.sleep(2)`, return.
-4. Force a re-fetch by deleting the cache file. No TTL logic.
+1. Add `redis` service to `docker-compose.yml` and `redis` to
+   `requirements.txt`.
+2. In `fetch()`: try Redis by URL hash key first; on miss, download and
+   `SET` with a TTL (e.g. 7 days).
+3. Keep the file cache as fallback if Redis is down.
 
-Verify:
+## 3. Expose the agent as an API
 
-1. Run `python -m src.ingestion.fetch` twice.
-2. First run: slow (~2s per page), creates 4 files in `data/raw/`.
-3. Second run: near-instant, file count unchanged.
+**Why:** makes the RAG pipeline usable outside the terminal (web UI, other
+apps), and is the point where Redis/shared caching starts to matter.
 
-Bonus: if ATO bot protection blocks us, save pages manually from the
-browser into `data/raw/` under the hash filename — the pipeline won't
-know the difference.
+**Steps:**
+
+1. FastAPI app with a `POST /ask` endpoint: question in, answer +
+   source citations out.
+2. Add the API service to `docker-compose.yml` alongside `db`.
+3. Later: streaming responses, auth, rate limiting.
