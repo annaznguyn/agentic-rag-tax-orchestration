@@ -1,10 +1,6 @@
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
-from src.ingestion.clean import clean
-from src.ingestion.fetch import fetch
-
-from config.sources import SOURCES
 
 def chunk(text: str, title: str, url: str, income_year: str) -> list[Document]:
     splitter = RecursiveCharacterTextSplitter(
@@ -25,10 +21,3 @@ def chunk(text: str, title: str, url: str, income_year: str) -> list[Document]:
         ))
     
     return documents
-
-if __name__ == "__main__":
-    src = SOURCES[0]
-    text, title = clean(fetch(src["url"]))
-
-    docs = chunk(text, title, src["url"], src["income_year"])
-    print(docs)

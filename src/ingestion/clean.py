@@ -3,6 +3,7 @@ import re
 
 from bs4 import BeautifulSoup
 
+
 def clean(html: str) -> tuple[str, str]:
     """
     Clean the HTML content of a page.
@@ -49,11 +50,3 @@ def _find_page_content(node: dict|list) -> str|None:
                 return _find_page_content(item)
     
     return None
-
-if __name__ == "__main__":
-    from config.sources import SOURCES
-    from src.ingestion.fetch import fetch
-
-    text, title = clean(fetch(SOURCES[0]["url"]))
-    print(f"=== {title} ===")
-    print(text[:2000])

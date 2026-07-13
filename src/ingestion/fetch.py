@@ -4,6 +4,7 @@ import requests
 
 from config.config import DATA_DIR
 
+
 def fetch(url: str) -> str:
     cache_file = DATA_DIR / f'{hashlib.sha256(url.encode()).hexdigest()}.html'
 
@@ -23,9 +24,3 @@ def fetch(url: str) -> str:
     time.sleep(2) # each cache miss creates a new request -> without sleep, those requests might hit the server's rate limit
     
     return res.text
-
-
-if __name__ == "__main__":
-    from config.sources import SOURCES
-    for source in SOURCES:
-        print(fetch(source["url"]), '\n\n')

@@ -3,8 +3,6 @@
 1. [Heading-aware splitting in `chunk.py`](#1-heading-aware-splitting-in-chunkpy)
 2. [Redis caching in `fetch.py`](#2-redis-caching-in-fetchpy)
 3. [Expose the agent as an API](#3-expose-the-agent-as-an-api)
-4. [Stale chunk versions in `store.py`](#4-stale-chunk-versions-in-storepy)
-4. [Stale chunk rows when a page changes](#4-stale-chunk-rows-when-a-page-changes)
 
 ---
 
@@ -56,19 +54,3 @@ apps), and is the point where Redis/shared caching starts to matter.
    source citations out.
 2. Add the API service to `docker-compose.yml` alongside `db`.
 3. Later: streaming responses, auth, rate limiting.
-
-## 4. Embedding: multiple versions of the same chunk in database
-
-**Why:** If a page's content changes, new hashes = new rows,
-and the old rows are never deleted — retrieval can return both the stale and the current version of the same chunk (bad: superseded rule text
-with a confident citation).
-
-**Steps:**
-
-1. Before inserting a page's chunks, delete its old rows:
-   `DELETE FROM langchain_pg_embedding WHERE cmetadata->>'url' = %s`.
-2. Optional: skip unchanged pages entirely by comparing a hash of the
-   whole cleaned page text (saves embedding calls).
-
-**Verify:** ingest, edit a cached page locally, re-ingest — row count
-for that URL should not grow.
