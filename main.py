@@ -7,16 +7,16 @@ from src.ingestion.store import store
 from src.ingestion.store import get_store
 
 
+def ingest() -> None:
+    for src in SOURCES:
+        text, title = clean(fetch(src["url"]))
+
+        chunks = chunk(text, title, src["url"], src["income_year"])
+        store(chunks)
+        print(f"stored {len(chunks)} chunks from {title}")
+
 def main():
-    src = SOURCES[0]
-    text, title = clean(fetch(src["url"]))
-
-    docs = chunk(text, title, src["url"], src["income_year"])
-    store(docs)
-
-    print(f"stored {len(docs)} chunks from {title}")
-    for doc in get_store().similarity_search("electricity costs working from home", k=3):
-        print(doc.metadata["chunk_index"], "|", doc.page_content[:80])
+    ingest()
 
 if __name__ == "__main__":
     main()
