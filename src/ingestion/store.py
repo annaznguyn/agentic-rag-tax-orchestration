@@ -10,13 +10,13 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# get a connection to the database
 def get_store() -> PGVector:
     return PGVector(
         embeddings=GoogleGenerativeAIEmbeddings(model="models/gemini-embedding-2"),
         collection_name="tax_orchestrator",
         connection=os.getenv("DATABASE_URL")
     )
-
 
 def store(docs: list[Document]) -> None:
     ids = []
