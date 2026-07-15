@@ -5,15 +5,6 @@ from bs4 import BeautifulSoup
 
 
 def clean(html: str) -> tuple[str, str]:
-    """
-    Clean the HTML content of a page.
-
-    Args:
-        html: The HTML content of the page.
-
-    Returns:
-        A tuple containing the text content and the title of the page.
-    """
     m = re.search(
         r'<script id="__NEXT_DATA__" type="application/json">(.*?)</script>',
         html, re.S,
