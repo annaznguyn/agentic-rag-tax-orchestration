@@ -21,6 +21,8 @@ def ingest():
 
 def retrieve(query: str) -> str:
     context = retrieve_context(query)
+
+    print(context)
     prompt = get_prompt(context, query)
     response = get_response(prompt)
 
@@ -29,7 +31,8 @@ def retrieve(query: str) -> str:
 def main():
     # ingest()
 
-    query = "What is the work from home deduction for the year 2025?"
+    # query = "What is the work from home deduction for the year 2025?"
+    query = "Can I claim rent for my home office?"
 
     response = retrieve(query)
     print(response)

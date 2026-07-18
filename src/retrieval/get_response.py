@@ -11,18 +11,20 @@ load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-def retrieve_context(query: str) -> str:
+def retrieve_context(query: str) -> List[str]:
     closest_docs = get_store().similarity_search(query, k=3)
 
-    context = ''
+    context = []
     for i, doc in enumerate(closest_docs, 1):
-        context += f'Source {i}:\nTitle: {doc.metadata['title']}\nurl: {doc.metadata['url']}\nIncome Year: {doc.metadata['income_year']}\nContent: {doc.page_content}\n\n'
+        context.append(f'Source {i}:\nTitle: {doc.metadata['title']}\nurl: {doc.metadata['url']}\nIncome Year: {doc.metadata['income_year']}\nContent: {doc.page_content}')
 
     return context
 
-def get_prompt(context: str, query: str) -> str:
+def get_prompt(context: List[str], query: str) -> str:
+    context = '\n\n'.join(context)
+    
     prompt = f"""
-    You help people prepare for their Australian tax return by pointing them to relevant ATO guidance. You never give tax advice or confirm a tax position. Always end your answer with: 'Confirm with a registered tax agent before claiming.'.
+    You help people prepare for their Australian tax return by pointing them to relevant ATO guidance. You never give tax advice or confirm a tax position. Always end your answer with: 'Disclaimer: I'm not a registered tax agent. Confirm with a registered tax agent before claiming.'.
 
     You are given a question and a context of tax documents.
     Use the context to answer the question. Every claim must cite its source as [N] where N is the source number. At the end, list each cited source's title and URL.
