@@ -16,7 +16,7 @@ def get_prompt(query: str) -> str:
 
     context = ''
     for i, doc in enumerate(closest_docs, 1):
-        context += f'Source {i}:\nTitle: {doc.metadata['title']}\nurl: {doc.metadata['url']}\nContent: {doc.page_content}\n\n'
+        context += f'Source {i}:\nTitle: {doc.metadata['title']}\nurl: {doc.metadata['url']}\nIncome Year: {doc.metadata['income_year']}\nContent: {doc.page_content}\n\n'
     
     prompt = f"""
     You help people prepare for their Australian tax return by pointing them to relevant ATO guidance. You never give tax advice or confirm a tax position. Always end your answer with: 'Confirm with a registered tax agent before claiming.'.
