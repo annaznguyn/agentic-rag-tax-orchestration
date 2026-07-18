@@ -20,7 +20,7 @@ def retrieve_context(query: str) -> str:
 
     return context
 
-def get_prompt(context: str) -> str:
+def get_prompt(context: str, query: str) -> str:
     prompt = f"""
     You help people prepare for their Australian tax return by pointing them to relevant ATO guidance. You never give tax advice or confirm a tax position. Always end your answer with: 'Confirm with a registered tax agent before claiming.'.
 
@@ -51,7 +51,7 @@ if __name__ == "__main__":
     query = "What is the work from home deduction for the year 2025?"
 
     context = retrieve_context(query)
-    prompt = get_prompt(context)
+    prompt = get_prompt(context, query)
     
     response = get_response(prompt)
     print(response)
