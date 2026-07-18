@@ -8,6 +8,7 @@ from src.ingestion.store import get_store
 
 from src.retrieval.get_response import get_response
 from src.retrieval.get_response import get_prompt
+from src.retrieval.get_response import retrieve_context
 
 
 def ingest():
@@ -19,7 +20,8 @@ def ingest():
         print(f"stored {len(chunks)} chunks from {title}")
 
 def retrieve(query: str) -> str:
-    prompt = get_prompt(query)
+    context = retrieve_context(query)
+    prompt = get_prompt(context, query)
     response = get_response(prompt)
 
     return response

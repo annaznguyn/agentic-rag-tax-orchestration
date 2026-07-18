@@ -46,12 +46,3 @@ def get_response(prompt: str) -> str:
 
     response = model.invoke(prompt)
     return response.text
-    
-if __name__ == "__main__":
-    query = "What is the work from home deduction for the year 2025?"
-
-    context = retrieve_context(query)
-    prompt = get_prompt(context, query)
-    
-    response = get_response(prompt)
-    print(response)
