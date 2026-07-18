@@ -15,14 +15,14 @@ def get_prompt(query: str) -> str:
     closest_docs = get_store().similarity_search(query, k=3)
 
     context = ''
-    for doc in closest_docs:
-        context += f'Content: {doc.page_content}\n'
+    for i, doc in enumerate(closest_docs, 1):
+        context += f'Source {i}:\nTitle: {doc.metadata['title']}\nurl: {doc.metadata['url']}\nContent: {doc.page_content}\n\n'
     
     prompt = f"""
     You are a helpful tax assistant that can answer questions about tax.
 
     You are given a question and a context of tax documents.
-    Use the context to answer the question.
+    Use the context to answer the question. Every claim must cite its source as [N] where N is the source number. At the end, list each cited source's title and URL.
     If you can't answer the question based on the given context, say "I don't know".
     Do not make up an answer. Do not use any information that is not in the context.
     If the question is not related to tax, say "I'm sorry, I can only answer questions about tax."

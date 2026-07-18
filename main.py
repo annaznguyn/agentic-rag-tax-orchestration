@@ -7,6 +7,7 @@ from src.ingestion.store import store
 from src.ingestion.store import get_store
 
 from src.retrieval.get_response import get_response
+from src.retrieval.get_response import get_prompt
 
 
 def ingest():
@@ -24,10 +25,10 @@ def retrieve(query: str) -> str:
     return response
 
 def main():
-    ingest()
+    # ingest()
 
     query = "What is the work from home deduction for the year 2025?"
-    
+
     response = retrieve(query)
     print(response)
 
