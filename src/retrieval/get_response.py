@@ -11,13 +11,16 @@ load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-def get_prompt(query: str) -> str:
+def retrieve_context(query: str) -> str:
     closest_docs = get_store().similarity_search(query, k=3)
 
     context = ''
     for i, doc in enumerate(closest_docs, 1):
         context += f'Source {i}:\nTitle: {doc.metadata['title']}\nurl: {doc.metadata['url']}\nIncome Year: {doc.metadata['income_year']}\nContent: {doc.page_content}\n\n'
-    
+
+    return context
+
+def get_prompt(context: str) -> str:
     prompt = f"""
     You help people prepare for their Australian tax return by pointing them to relevant ATO guidance. You never give tax advice or confirm a tax position. Always end your answer with: 'Confirm with a registered tax agent before claiming.'.
 
@@ -47,8 +50,8 @@ def get_response(prompt: str) -> str:
 if __name__ == "__main__":
     query = "What is the work from home deduction for the year 2025?"
 
-    prompt = get_prompt(query)
-    print(prompt)
+    context = retrieve_context(query)
+    prompt = get_prompt(context)
     
     response = get_response(prompt)
     print(response)
