@@ -3,6 +3,7 @@
 1. [Heading-aware splitting in `chunk.py`](#1-heading-aware-splitting-in-chunkpy)
 2. [Redis caching in `fetch.py`](#2-redis-caching-in-fetchpy)
 3. [Expose the agent as an API](#3-expose-the-agent-as-an-api)
+4. [LangGraph checkpointer for the agent](#4-langgraph-checkpointer-for-the-agent)
 
 ---
 
@@ -54,3 +55,27 @@ apps), and is the point where Redis/shared caching starts to matter.
    source citations out.
 2. Add the API service to `docker-compose.yml` alongside `db`.
 3. Later: streaming responses, auth, rate limiting.
+
+## 4. LangGraph checkpointer for the agent
+
+**Why:** persist agent state (`Job`, `DeductionItem`, message history)
+across turns and restarts so a conversation can pause and resume, and so
+a crash mid-run doesn't lose progress. Enables multi-turn threads and
+human-in-the-loop review.
+
+**Steps:**
+
+1. Add `langgraph` and `langgraph-checkpoint-postgres` to
+   `requirements.txt`.
+2. Reuse the existing Postgres `db` service — construct a
+   `PostgresSaver` (or `AsyncPostgresSaver`) from the same connection
+   string, and call `.setup()` once to create the checkpoint tables.
+3. Pass the saver as `checkpointer=` when compiling the `StateGraph`,
+   and invoke with a `thread_id` in `config` so each conversation gets
+   its own persisted thread.
+
+**Verify:**
+
+1. Run the agent, interrupt it mid-conversation, then re-invoke with the
+   same `thread_id` — earlier state and messages are restored.
+2. Checkpoint rows appear in Postgres for the thread.
