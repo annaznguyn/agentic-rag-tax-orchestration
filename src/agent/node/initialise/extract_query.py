@@ -69,6 +69,6 @@ def extract_query(prompt: str) -> dict:
         api_key=GEMINI_API_KEY
     ).with_structured_output(EXTRACTION_SCHEMA)
 
-    extracted_data = model.invoke(prompt)
+    extracted_data = model.invoke(prompt)  # return raw dict for create_state.py to create State objects
 
     return extracted_data
