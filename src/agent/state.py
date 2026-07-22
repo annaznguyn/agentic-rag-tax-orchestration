@@ -26,7 +26,7 @@ class PendingQuestion(TypedDict):
     question: str
     category: str      # User/Job/DeductionItem
     ref: str           # which job/deduction item (empty for User)
-    to_be_filled: str  # field to be filled (e.g. employment_type)
+    category: str      # field to be filled (e.g. employment_type)
 
 class State(TypedDict):
     user: User
