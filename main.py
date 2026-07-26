@@ -12,8 +12,8 @@ from src.retrieval.get_response import retrieve_context
 
 from src.agent.node.initialise.extract import extract_query
 from src.agent.node.initialise.create_state import create_state
-from src.agent.node.initialise.extract_query import get_prompt as get_extract_query_prompt
-from src.agent.node.initialise.get_suggestion import get_prompt as get_suggestion_prompt
+from src.agent.node.initialise.get_extract_prompt import get_extract_prompt
+from src.agent.node.initialise.get_suggestion_prompt import get_suggestion_prompt
 
 
 def ingest():
@@ -42,11 +42,14 @@ def main():
     # response = retrieve(query)
     # print(response)
 
-    extract_query_prompt = extract_query(query)
-    print(extract_query_prompt)
+    extract_query_prompt = get_extract_prompt(query)
+    # print(extract_query_prompt)
 
-    # extract_query = extract_query(extract_query_prompt)
-    # state = create_state(extract_query)
+    extracted_query = extract_query(extract_query_prompt)
+    # print(extracted_query)
+
+    state = create_state(extracted_query, query)
+    print(state)
 
 
 if __name__ == "__main__":
