@@ -12,8 +12,7 @@ from src.retrieval.get_response import retrieve_context
 
 from src.agent.node.initialise.extract import extract_query
 from src.agent.node.initialise.create_state import create_state
-from src.agent.node.initialise.get_extract_prompt import get_extract_prompt
-from src.agent.node.initialise.get_suggestion_prompt import get_suggestion_prompt
+from src.agent.node.initialise.suggest_deductions import suggest_deductions
 
 
 def ingest():
@@ -39,15 +38,14 @@ def main():
     # query = "What is the work from home deduction for the year 2025?"
     query = "Can I claim rent for my home office? I'm a software engineer and work from home."
 
-    extract_query_prompt = get_extract_prompt(query)
-    # print(extract_query_prompt)
-
-    extracted_query = extract_query(extract_query_prompt)
+    extracted_query = extract_query(query)
     # print(extracted_query)
 
     state = create_state(extracted_query, query)
-    print(state)
+    # print(state)
 
+    suggestions = suggest_deductions(state)
+    print(suggestions)
 
 if __name__ == "__main__":
     main()
