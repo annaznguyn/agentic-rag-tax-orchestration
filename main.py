@@ -37,10 +37,7 @@ def main():
     # ingest()
 
     # query = "What is the work from home deduction for the year 2025?"
-    query = "Can I claim rent for my home office?"
-
-    # response = retrieve(query)
-    # print(response)
+    query = "Can I claim rent for my home office? I'm a software engineer and work from home."
 
     extract_query_prompt = get_extract_prompt(query)
     # print(extract_query_prompt)
