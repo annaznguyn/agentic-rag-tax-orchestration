@@ -1,3 +1,8 @@
+import json
+
+from src.agent.state import State
+
+
 def get_prompt(state: State) -> str:
     existing_deductions = [d["name"] for d in state["deductions"]]
 
