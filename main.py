@@ -13,6 +13,7 @@ from src.retrieval.get_response import retrieve_context
 from src.agent.node.initialise.extract import extract_query
 from src.agent.node.initialise.create_state import create_state
 from src.agent.node.initialise.suggest_deductions import suggest_deductions
+from src.agent.node.initialise.confirm_user import confirm_user
 
 
 def ingest():
@@ -44,8 +45,11 @@ def main():
     state = create_state(extracted_query, query)
     # print(state)
 
-    suggestions = suggest_deductions(state)
+    suggestions = suggest_deductions(state)["suggestions"]
     print(suggestions)
+
+    accepted_suggestions = confirm_user(suggestions)
+    print(accepted_suggestions)
 
 if __name__ == "__main__":
     main()
