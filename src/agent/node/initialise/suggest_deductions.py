@@ -5,6 +5,7 @@ import json
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from src.agent.state import State
+from src.agent.node.initialise.create_state import create_deduction
 
 
 dotenv.load_dotenv()
@@ -70,3 +71,10 @@ def suggest_deductions(state: State) -> dict:
     response = model.invoke(prompt)
 
     return response
+
+def add_suggestions(state: State, suggestions: list[dict]) -> State:
+    existing_deductions = {d["name"] for d in state["deductions"]}
+
+    for s in suggestions:
+        if s["name"] not in existing_deductions:
+            state["deductions"].append(create_deduction(s["name"], {}))

@@ -1,7 +1,7 @@
 from src.agent.state import State, User, Job, DeductionItem
 
 
-def create_deduction(name: str, additional_context: dict | None = None) -> DeductionItem:
+def create_deduction(name: str, additional_context: dict) -> DeductionItem:
     return DeductionItem(
         name=name,
         status="todo",
