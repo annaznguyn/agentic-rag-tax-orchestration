@@ -1,7 +1,16 @@
 from src.agent.state import State, User, Job, DeductionItem
 
 
-def create_state(extracted_data: dict, query: str = "") -> State:
+def create_deduction(name: str, additional_context: dict | None = None) -> DeductionItem:
+    return DeductionItem(
+        name=name,
+        status="todo",
+        ato_context=[],
+        additional_context=additional_context or {},
+        missing_context={}
+    )
+
+def create_state(extracted_data: dict, query: str) -> State:
     jobs = []
     deductions = []
 
@@ -13,22 +22,16 @@ def create_state(extracted_data: dict, query: str = "") -> State:
         extra_info={},
     )
 
-    for job in extracted_data.get("jobs", []):
+    for j in extracted_data.get("jobs", []):
         jobs.append(Job(
-            occupation=job.get("occupation", ""),
-            income_amount=job.get("income_amount", 0),
-            employment_type=job.get("employment_type", ""),
-            is_work_from_home=job.get("is_work_from_home", False),
+            occupation=j.get("occupation", ""),
+            income_amount=j.get("income_amount", 0),
+            employment_type=j.get("employment_type", ""),
+            is_work_from_home=j.get("is_work_from_home", False),
         ))
 
-    for deduction in extracted_data.get("deductions", []):
-        deductions.append(DeductionItem(
-            name=deduction.get("name", ""),
-            status="todo",
-            ato_context=[],
-            additional_context=deduction.get("additional_context", {}),
-            missing_context={},
-        ))
+    for d in extracted_data.get("deductions", []):
+        deductions.append(create_deduction(d.get("name", ""), d.get("additional_context", {})))
 
     return State(
         user=user,
