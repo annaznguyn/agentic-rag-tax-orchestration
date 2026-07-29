@@ -39,7 +39,13 @@ EXTRACTION_SCHEMA = {
                             },
                             "additional_context": {
                                 "type": "object",
-                                "description": "Facts the user stated about this deduction (hours/week, cost, etc.)."
+                                "description": "Facts the user stated about this deduction (hours/week, cost, etc.).",
+                                "properties": {
+                                    "expense_type": {
+                                        "type": "string",
+                                        "description": 'The specific kind of expense the user named, e.g. "rent", "electricity", "internet", "phone", "equipment". Keep the user\'s own wording.'
+                                    }
+                                }
                             }
                         },
                         "required": ["name"]
@@ -83,7 +89,6 @@ def extract_query(query: str) -> dict:
         api_key=GEMINI_API_KEY
     ).with_structured_output(EXTRACTION_SCHEMA)
 
-    print("extracting...")
     extracted_data = model.invoke(prompt)  # return raw dict for create_state.py to create State objects
 
     return extracted_data

@@ -44,13 +44,13 @@ def main():
     # print(extracted_query)
 
     state = create_state(extracted_query, query)
-    # print(state)
+    print("initial state: \n", state)
 
     suggestions = suggest_deductions(state)["suggestions"]
     # print(suggestions)
 
     accepted_suggestions = confirm_user(suggestions)
-    print(accepted_suggestions)
+    # print(accepted_suggestions)
 
     add_suggestions(state, accepted_suggestions)
     print(state)
