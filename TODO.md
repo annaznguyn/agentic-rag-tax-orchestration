@@ -4,6 +4,7 @@
 2. [Redis caching in `fetch.py`](#2-redis-caching-in-fetchpy)
 3. [Expose the agent as an API](#3-expose-the-agent-as-an-api)
 4. [LangGraph checkpointer for the agent](#4-langgraph-checkpointer-for-the-agent)
+5. [Harden LLM calls (timeouts, retries, error handling)](#5-harden-llm-calls-timeouts-retries-error-handling)
 
 ---
 
@@ -79,3 +80,41 @@ human-in-the-loop review.
 1. Run the agent, interrupt it mid-conversation, then re-invoke with the
    same `thread_id` — earlier state and messages are restored.
 2. Checkpoint rows appear in Postgres for the thread.
+
+## 5. Harden LLM calls (timeouts, retries, error handling)
+
+**Why:** `model.invoke()` in `extract.py` and `suggest_deductions.py` is a
+synchronous network call with no timeout, so a stalled request (or a
+missing/invalid `GEMINI_API_KEY`) makes `main.py` hang indefinitely
+instead of failing with a clear error. A `try/except` alone doesn't help —
+the code never raises, it just waits. The timeout is what turns "hangs
+forever" into an error you can actually catch and handle.
+
+**Steps:**
+
+1. **Set a timeout (highest impact).** Pass `timeout=30` and cap
+   `max_retries` (e.g. `2`) on every `ChatGoogleGenerativeAI` construction
+   so stalled calls fail fast instead of hanging.
+2. **Fail fast on missing config.** After `GEMINI_API_KEY = os.getenv(...)`,
+   raise a clear `RuntimeError` if it's unset rather than letting `None`
+   surface deep in the SDK.
+3. **Centralise the model factory.** Both nodes build the same client — add
+   a shared `get_model(schema=None, timeout=30, max_retries=2)` helper (e.g.
+   `src/agent/llm.py`) so timeouts/retries stay consistent everywhere.
+4. **Wrap calls in narrow try/except.** Catch specific errors (not bare
+   `except:`), log context, then re-raise as a `RuntimeError` with the step
+   name. Never silently return `{}` — that hides the failure downstream.
+5. **Make the wait visible.** Print/log a short status before each LLM call
+   ("Analysing your query...") so a CLI run shows progress and which step
+   it's on.
+6. **Retries with backoff for transient failures only.** `max_retries`
+   covers basics; for finer control use `tenacity`. Only retry transient
+   errors (timeouts, 429, 5xx) — never retry auth errors (401/403).
+
+**Verify:**
+
+1. Temporarily unset `GEMINI_API_KEY` — the program exits immediately with
+   a clear message instead of hanging.
+2. Simulate a slow/blocked network — the call raises a timeout after ~30s
+   instead of running forever.
+3. A normal run prints the per-step status lines before each LLM call.

@@ -68,6 +68,7 @@ def suggest_deductions(state: State) -> dict:
         api_key=GEMINI_API_KEY
     ).with_structured_output(SUGGESTION_SCHEMA)
 
+    print("suggesting...")
     response = model.invoke(prompt)
 
     return response

@@ -47,7 +47,7 @@ def main():
     # print(state)
 
     suggestions = suggest_deductions(state)["suggestions"]
-    print(suggestions)
+    # print(suggestions)
 
     accepted_suggestions = confirm_user(suggestions)
     print(accepted_suggestions)
