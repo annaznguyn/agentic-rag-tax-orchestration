@@ -70,11 +70,15 @@ def suggest_deductions(state: State) -> dict:
 
     response = model.invoke(prompt)
 
-    return response
+    return {"suggestions": response.get("suggestions", [])}
 
-def add_suggestions(state: State, suggestions: list[dict]) -> State:
+def add_suggestions(state: State) -> dict:
     existing_deductions = {d["name"] for d in state["deductions"]}
 
-    for s in suggestions:
+    deductions = list(state["deductions"])
+    for s in state.get("accepted", []):
         if s["name"] not in existing_deductions:
-            state["deductions"].append(create_deduction(s["name"], {}))
+            deductions.append(create_deduction(s["name"], {}))
+            existing_deductions.add(s["name"])
+
+    return {"deductions": deductions}

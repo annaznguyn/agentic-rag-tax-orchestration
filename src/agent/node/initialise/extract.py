@@ -3,6 +3,9 @@ import dotenv
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 
+from src.agent.state import State
+from src.agent.node.initialise.create_state import create_state
+
 
 dotenv.load_dotenv()
 
@@ -81,14 +84,18 @@ def get_prompt(query: str) -> str:
 
     return prompt
 
-def extract_query(query: str) -> dict:
+def extract_query(state: State) -> dict:
+    query = state["query"]
     prompt = get_prompt(query)
-    
+
     model = ChatGoogleGenerativeAI(
         model="gemini-flash-lite-latest",
         api_key=GEMINI_API_KEY
     ).with_structured_output(EXTRACTION_SCHEMA)
 
-    extracted_data = model.invoke(prompt)  # return raw dict for create_state.py to create State objects
+    extracted_data = model.invoke(prompt)
 
-    return extracted_data
+    # build the initial user/deductions from the extracted facts
+    built = create_state(extracted_data, query)
+
+    return {"user": built["user"], "deductions": built["deductions"]}

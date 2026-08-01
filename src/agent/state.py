@@ -34,3 +34,5 @@ class State(TypedDict):
     query: str
     final_responses: list[str]  # list of responses sent to user, excluding agent's questions
     next: str                   # router's next step
+    suggestions: list[dict]
+    accepted: list[dict]        # suggestions accepted by user

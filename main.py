@@ -10,11 +10,7 @@ from src.retrieval.get_response import get_response
 from src.retrieval.get_response import get_prompt as get_response_prompt
 from src.retrieval.get_response import retrieve_context
 
-from src.agent.node.initialise.extract import extract_query
-from src.agent.node.initialise.create_state import create_state
-from src.agent.node.initialise.suggest_deductions import suggest_deductions
-from src.agent.node.initialise.suggest_deductions import add_suggestions
-from src.agent.node.initialise.confirm_user import confirm_user
+from src.agent.graph import build_graph
 
 
 def ingest():
@@ -37,23 +33,21 @@ def retrieve(query: str) -> str:
 def main():
     # ingest()
 
-    # query = "What is the work from home deduction for the year 2025?"
     query = "Can I claim rent for my home office? I'm a software engineer and work from home."
 
-    extracted_query = extract_query(query)
-    # print(extracted_query)
+    initial_state = {
+        "user": {},
+        "deductions": [],
+        "query": query,
+        "final_responses": [],
+        "next": "",
+        "suggestions": [],
+        "accepted": [],
+    }
 
-    state = create_state(extracted_query, query)
-    print("initial state: \n", state)
-
-    suggestions = suggest_deductions(state)["suggestions"]
-    # print(suggestions)
-
-    accepted_suggestions = confirm_user(suggestions)
-    # print(accepted_suggestions)
-
-    add_suggestions(state, accepted_suggestions)
-    print(state)
+    graph = build_graph()
+    final_state = graph.invoke(initial_state)
+    print(final_state)
 
 if __name__ == "__main__":
     main()

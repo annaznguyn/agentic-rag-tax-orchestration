@@ -4,4 +4,5 @@ python-dotenv
 langchain-text-splitters
 langchain-postgres
 langchain-google-genai
+langgraph
 psycopg[binary]
