@@ -12,14 +12,11 @@ load_dotenv()
 
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-RELEVANCE_THRESHOLD = 0.9
+RELEVANCE_THRESHOLD = 0.72
 
 def retrieve_context(query: str, k: int = 3, score_threshold: float = RELEVANCE_THRESHOLD) -> List[str]:
-    # fetch unfiltered so we can see the scores of rejected docs too
     scored_docs = get_store().similarity_search_with_relevance_scores(query, k=k)
 
-    # DEBUG: print every candidate's score so we can calibrate the threshold
-    print(f"\n[retrieve] query: {query!r}")
     for doc, score in scored_docs:
         kept = "KEEP" if score >= score_threshold else "drop"
         print(f"  [{kept}] {score:.4f}  {doc.metadata.get('title', '')}")
