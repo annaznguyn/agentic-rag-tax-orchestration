@@ -7,7 +7,8 @@ def create_deduction(name: str, additional_context: dict) -> DeductionItem:
         status="todo",
         ato_context=[],
         additional_context=additional_context or {},
-        missing_context={}
+        missing_context={},
+        reason=""
     )
 
 def create_state(extracted_data: dict, query: str) -> State:

@@ -16,10 +16,11 @@ class User(TypedDict):
 
 class DeductionItem(TypedDict):
     name: str
-    status: str               # todo / missing_info / eligible / ineligible
+    status: str               # todo / missing_info / eligible / ineligible / no_context
     ato_context: list[str]
     additional_context: dict  # additional context from user
-    missing_context: dict     # missing context, to be asked by agent
+    missing_context: dict     # missing context, to be asked by agent (field -> question)
+    reason: str               # reason getting the status, grounded in ato_context
 
 # question to be asked by agent
 class PendingQuestion(TypedDict):
