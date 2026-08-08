@@ -19,12 +19,14 @@ VERIFY_SCHEMA = {
     "properties": {
         "status": {
             "type": "string",
-            "enum": ["eligible", "ineligible", "missing_info"],
+            "enum": ["eligible", "ineligible", "missing_info", "no_context"],
             "description": (
                 "eligible: the ATO context supports the claim given the facts the user provided. "
                 "ineligible: the ATO context rules the claim out given those facts. "
                 "missing_info: the context is relevant but the decision depends on a fact the "
-                "user has not provided yet."
+                "user has not provided yet. "
+                "no_context: the context does not cover this deduction at all, so no amount of "
+                "extra information from the user would let you decide from it."
             ),
         },
         "reason": {
@@ -37,7 +39,7 @@ VERIFY_SCHEMA = {
         },
         "missing_context": {
             "type": "array",
-            "description": "Only when status is missing_info: the specific facts still needed to decide.",
+            "description": "Only when status is missing_info: the specific facts still needed to decide. Leave empty for every other status.",
             "items": {
                 "type": "object",
                 "properties": {
@@ -75,6 +77,11 @@ def get_prompt(deduction: dict, user: dict) -> str:
     - missing_info: the context is relevant but the outcome depends on a fact the user has
       NOT provided. List each needed fact in missing_context with a short snake_case field
       and a plain-English question.
+    - no_context: the context is about some other topic and does not cover this deduction.
+      Use this whenever the context contains no rules about this deduction, even if it looks
+      superficially related. Do not stretch an unrelated rule to fit, and do not ask for more
+      information — no answer from the user could make this context decide the deduction.
+      Leave missing_context empty.
 
     Deduction: {deduction.get("name", "")}
 
@@ -111,6 +118,8 @@ def verify_deduction(deduction: dict, user: dict) -> dict:
 
     response = model.invoke(prompt)
 
+    status = response["status"]
+
     # normalise the missing_context list into a {field: question} dict for the state
     missing_context = {
         item["field"]: item["question"]
@@ -118,8 +127,13 @@ def verify_deduction(deduction: dict, user: dict) -> dict:
         if item.get("field") and item.get("question")
     }
 
+    # questions are only answerable when the context actually covers the deduction,
+    # otherwise the answer comes back and still can't be assessed against this context
+    if status != "missing_info":
+        missing_context = {}
+
     return {
-        "status": response["status"],
+        "status": status,
         "reason": response["reason"],
         "missing_context": missing_context,
     }

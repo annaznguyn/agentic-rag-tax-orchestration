@@ -46,8 +46,7 @@ def get_prompt(state: State) -> str:
     Rules:
     - Do NOT suggest any deduction already identified: {existing_deductions}
     - Do not invent facts about the user.
-    - Use canonical snake_case names (e.g. working_from_home, car_and_travel,
-      clothing_and_laundry, self_education, tools_and_equipment).
+    - Use canonical snake_case names.
     - Write each reason as WHY it's worth exploring for their situation. Do NOT
       assert the user is eligible or can claim it. Phrase it as a suggestion to
       check, and end the reason with: 'Confirm eligibility with a registered tax agent.'
