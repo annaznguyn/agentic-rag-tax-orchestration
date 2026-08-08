@@ -5,6 +5,7 @@
 3. [Expose the agent as an API](#3-expose-the-agent-as-an-api)
 4. [LangGraph checkpointer for the agent](#4-langgraph-checkpointer-for-the-agent)
 5. [Harden LLM calls (timeouts, retries, error handling)](#5-harden-llm-calls-timeouts-retries-error-handling)
+6. [Flip the deduction/source mapping once the corpus grows](#6-flip-the-deductionsource-mapping-once-the-corpus-grows)
 
 ---
 
@@ -118,3 +119,23 @@ forever" into an error you can actually catch and handle.
 2. Simulate a slow/blocked network — the call raises a timeout after ~30s
    instead of running forever.
 3. A normal run prints the per-step status lines before each LLM call.
+
+## 6. Flip the deduction/source mapping once the corpus grows
+
+**Why:** the plan is to tag each source in `config/sources.py` with the one
+deduction it covers, and build the suggestion list from those tags. That
+works while there are only a few pages. Once there are hundreds it stops
+fitting: one ATO page can cover several deductions, and one deduction can
+span many pages. One tag per URL can't say either of those things.
+
+**Steps:**
+
+1. Keep a list of deductions as the source of truth, instead of deriving
+   it from the sources.
+2. Point each source at the deductions it covers, so a page can belong to
+   more than one.
+3. Keep the retrieval filter working the same way — look up a deduction,
+   search only its pages.
+
+**Note:** same idea, just the other way up. It's a natural next step, not a
+rewrite, so don't do it early.
